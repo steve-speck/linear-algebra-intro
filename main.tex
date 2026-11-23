@@ -1,0 +1,607 @@
+\documentclass[11pt, reqno]{amsart}
+
+% --- Essential Packages ---
+\usepackage{amsmath, amssymb, amsthm, comment, xcolor, bbm, cancel, mathrsfs, mathtools, enumitem} % Core AMS math packages
+\usepackage{tikz, tikz-cd}
+\usepackage{tcolorbox}
+\usetikzlibrary{shapes.geometric, positioning, fit}
+\usepackage{hyperref} % Makes the table of contents and citations clickable
+\usepackage[margin=1in]{geometry} % Standardizes margins
+\usepackage{mathtools} % For advanced math formatting
+
+\newcommand{\tuple}[1]{\left( #1 \right)}
+\newcommand{\paren}[1]{\left( #1 \right)}
+\newcommand{\op}[1]{\operatorname{#1}}
+
+% --- Theorem Environments ---
+% This sets up how theorems, lemmas, etc., are numbered (by section)
+\theoremstyle{definition} % This ensures all following environments have Bold headers and Upright body text
+
+% 1. Define the "Master" counter. We'll use 'theorem' as the base.
+% [section] means it will number as 1.1, 1.2, 2.1, etc.
+\newtheorem{theorem}{Theorem}[section]
+
+% 2. Define all other environments to share the 'theorem' counter.
+% The [theorem] in the middle is the "link" that forces them to share numbering.
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{notation}[theorem]{Notation}
+\newtheorem{exercise}[theorem]{Exercise}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem*{recall}{Recall}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{disclaimer}[theorem]{Disclaimer}
+\newtheorem{aside}[theorem]{Aside}
+\newtheorem{claim}[theorem]{Claim}
+
+% --- Custom Macros ---
+% Add your custom shortcuts here
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\T}{\mathbb{T}}
+\newcommand{\A}{\mathscr{A}}
+\newcommand{\B}{\mathscr{B}}
+\newcommand{\F}{\mathbb{F}}
+\newcommand{\h}{\mathcal{H}}
+\newcommand{\ham}{\mathsf{H}}
+\newcommand{\myfunction}[2]{%
+    \makebox[0pt][r]{$\displaystyle #1$}
+    =
+    \makebox[0pt][l]{$\displaystyle #2$}%
+}
+
+% --- Document Info ---
+\title{Equality of K-Theoretic and Schwartzman Gap Labeling}
+\author{}
+%\date{\today}
+
+\begin{document}
+
+\section{Some Notation}
+\begin{itemize}
+    \item If an element of a set $S$ is denoted $x$, then we say ``$x$ is in $S$'' by writing $x\in S$.
+    \item A set may be defined with \emph{set builer notation} where ``the subset of all elements $x\in S$ such that condition A holds'' is written 
+    \begin{equation}
+        \{x\in S\,|\,x\text{ satisfies condition A}\}
+    \end{equation}
+    The symbol ``$|$" may be replaced with ``$:$". For example, the even numbers would be written
+    \begin{equation}
+        \{n\in \mathbb{Z}\,|\,n=2m\text{ for some $m\in\mathbb{Z}$}\}
+    \end{equation}
+    \item If $X$ is a set and $Y$ is a set of some elements of $X$, $Y$ is called a \emph{subset} of $X$ denoted either $X\subset Y$ or $X\subseteq Y$.
+    \item If $X$ and $Y$ are sets, the set of elements in either $X$, $Y$, or both is denoted $X\cup Y$ called the \emph{union}.
+    \item If $X$ and $Y$ are sets, the set of elements in both $X$ and $Y$ is denoted $X\cup Y$ called the \emph{intersection}.
+    \item If $X$ is a set and $Y\subset X$ is a subset, the set of elements in $X$ but not in $Y$ is called the \emph{set difference} and is denoted $X\setminus Y$.
+    \item A function $f$ from a set $X$ to another set $Y$ associates an element in $Y$ to every element in $X$. For an element $x\in X$, we denote the corresponding element in $Y$ by $f(x)\in Y$. The element $f(x)$ is called the \emph{image} of $x$ (under $f$). Such a function may be compactly written as $f:X\to Y$. Here, $X$ is the \emph{domain} and $Y$ is the \emph{range} (or \emph{codomain}). The subset of $Y$ that $f$ maps into is called the \emph{image}. If $f$ is a function that takes multiple arguments, say in the sets $X$ and $Z$, we may write $f:X\times Z\to Y$ (Here, $X\times Z$ is the \emph{Cartesian product}). The place that a specific element maps to is denoted with a different arrow $x\mapsto f(x)$. For example, addition of numbers is denoted 
+    \begin{equation}
+        \begin{gathered}
+            +:\R\times \R\to \R\\
+            (x,y)\mapsto x+y
+        \end{gathered}
+    \end{equation}
+    \item A statement such as "if $A$ then $B$" is written $A\implies B$. Similarly, "if $B$ then $A$" may be written $A\impliedby B$. The statement $B$ is true if and only if $A$ is true is then written $A\iff B$.
+    \item ``if and only if'' may be abbreviated to iff.
+    \item ``for all", ``for any", ``for every'' all have the same mathematical interpretation and may all be denoted by the symbol $\forall$.
+    \item Similar to above, ``there exists" or ``there is'' may be written $\exists$.
+    \item A field is denoted by $\F$, and the only fields we will explicitely mention in this class are the field of real numbers $\R$ (e.g. $1.2,\pi, \frac67\in\R$) and the field of complex numbers $\C$ (e.g $2, i=\sqrt{-1}, 2+i\in\C$). The definition of an abstract field is not relevant to this class, but is included in the appendix for the curious-minded.
+    \item The symbols ``$:=$'' or ``$\equiv$'' are used when an equality comes from a definition.
+    \item The symbol ``$\substack{=}{!}$'' is (less commonly) used to denote an equality that may not be true without prior knowledge, but is then \emph{demanded} to be equal. 
+\end{itemize}
+If the last two items are confusing, just think of those symbols as the standard ``$=$''.
+
+\newpage
+
+\section{Vector Spaces}
+
+\subsection{Definition of Vector Spaces}
+
+Linear algebra studies sets called \emph{vector spaces}. 
+\begin{comment}
+\begin{definition}
+    A \emph{vector space} is a pair $(V,\F)$ where $V$ is a set and $\F$ is a field with two operations given by the following \emph{axioms}:\\[.1em]
+\begin{center}
+\fbox{\parbox[t]{8.4cm}{
+    \raggedright
+    \begin{center}\textbf{\underline{Addition}}\end{center}\\[.4em]
+    $+:V\times V\to V$ such that for all $u,v,w\in V$,
+\begin{enumerate}[itemsep=0.5em, topsep=0.5em]
+    \item (\emph{associativity}) $u+(v+w)=(u+v)+w$
+    \item (\emph{commutativity}) $u+v=v+u$
+    \item (\emph{identity}) There is an element $0\in V$\\\noindent such that $v+0=v$
+    \item (\emph{inverses}) There is an element $-v\in V$ such that $v+(-v)=0$
+\end{enumerate}
+}}
+\quad
+\fbox{\parbox[t]{6cm}{
+    \raggedright
+    \begin{center}\textbf{\underline{Scalar Multiplication}}\end{center}\\[.4em]
+    $\times:\F\times V\to V$ such that for all $\mu,\lambda\in\F$ and $v\in V$
+    \begin{enumerate}[itemsep=0.5em, topsep=0.5em]
+    \item $\mu(\lambda v)=(\mu\lambda)v$
+    \item $1v=v$
+\end{enumerate}
+}}
+\end{center}
+\bigskip
+We drop the $\times$ notation in scalar multiplication, for example, $\lambda\times v$ is written $\lambda v$. For $v+(-v)$, we just write $v-v$. The associativity axiom allows us to drop parentheses in addition.\\
+\indent It's not enough to add two operations, but we also want these operations to \emph{know} about each other. Otherwise, the scalar multiplication adds literally no new mathematical conent. We add the following compatibility axioms:\\[.1em]
+\begin{center}
+    \fbox{\parbox{9cm}{
+        \raggedright
+    \begin{center}\textbf{\underline{Compatibility}}\end{center}\\[.4em]
+    For all $v,w\in V$ and for all $\mu,\lambda\in\mathbb{F}$, we have\\[.4em] 
+\begin{tabular}{ll}
+        (5) $\lambda(v+w)=\lambda v+\lambda w$ & \quad (6) $(\mu+\lambda)v=\mu v+\lambda v$
+    \end{tabular}
+    \medskip\phantom{vector}
+    }}
+\end{center}
+\end{definition}
+\end{comment}
+
+The compatibility axiom forces vector addition to behave like field addition, and forces the scalar multiples of a single vector to behave like a field itself. \\
+\indent And that's \emph{it}. The entire class will be studying the vector spaces that have just been described (and the maps between them).\\
+\indent To get a feel for these spaces, we should understand what a vector space is NOT.
+\begin{itemize}[itemsep=0.5em, topsep=0.5em]
+    \item There is NO notion of distance between vectors.
+    \item There is NO notion of size/magnitude of vectors.
+    \item There is NO notion of angle between vectors.
+    \item There is NO notion of order between vectors (i.e. there is no $v\geq w$)
+\end{itemize}
+so any statements such as ``vectors have direction and magnitude" do NOT apply to a pure vector space that we are describing now. While all these structures can be, and often are\footnote{besides order}, added to a vector space, they are not included in that describes a straight-up vector space.
+
+\subsection{First Results}
+
+Let's see what information we can quickly get from these definitions.
+\begin{remark}[Cancellation]\label{cancel}
+Since expressions on either side of an equal sign represent the same element in a vector space, it's always legal to add the same vector to either side of an equal sign. That is, if $a=a$, then $a+b=a+b$.\\
+\indent An important property of the inverses and commutativity requirements is \emph{cancellation}. That is, any time I have an equality of vectors where the same vector is on both sides of the equal sign, I can cancel them. That is,
+\begin{equation}
+    \begin{gathered}
+        v_1+v_2+\cdots + w+\cdots = u_1+u_2+\cdots + w + \cdots\\
+        v_1+v_2+\cdots + w+\cdots - w= u_1+u_2+\cdots + w + \cdots - w\\
+        v_1+v_2+\cdots + 0+\cdots = u_1+u_2+\cdots + 0 + \cdots\\
+        v_1+v_2+\cdots=u_1+u_2+\cdots
+    \end{gathered}
+\end{equation}
+\end{remark}
+
+\begin{proposition}
+    The zero element of a vector space is unique.
+    \begin{proof}
+        Suppose $0,0'\in V$ are both such that for all $v\in V$, we have $v+0=0$ and $v+0'=0$. Then $0+0'=0$ but also $0+0'=0'$. Therefore, $0=0'$ and we're done.
+    \end{proof}
+\end{proposition}
+
+Indeed, no vector other than the zero vector can leave ANY vector invariant under addition.
+
+\begin{proposition}
+    For $v,w\in V$, if $v+w=v$, then $w=0$.
+    \begin{proof}
+        \begin{equation}
+            \begin{gathered}
+                v+w=v\\
+                w+v=v\\
+                w+v-v=v-v\\
+                w+0=0\\
+                w=0
+            \end{gathered}
+        \end{equation}
+    \end{proof}
+\end{proposition}
+
+\begin{proposition}\label{inv}
+    The inverse of a vector is unique.
+    \begin{proof}
+        For $v\in V$, by axiom~(4), we're guaranteed that there is a vector $-v\in V$ such that $v+(-v)=0$. If $w\in V$ also exists such that $v+w=0$, then 
+        \begin{equation}
+            \begin{gathered}
+            v-v=0\text{ and }v+w=0\\
+            v-v=v+w\\
+            0=v+w\\
+            0=w+v\\
+            0-v=w+v-v\\
+            -v=w+0\\
+            -v=w
+            \end{gathered}
+        \end{equation}
+    \end{proof}
+\end{proposition}
+
+\begin{proposition}
+    $0\times v=0$
+    \begin{proof}
+        Note that the right-hand side is the zero element of the vector space, not the field. Then $\lambda v=(0+\lambda)v=0v+\lambda v$, so by Remark~\ref{cancel}, $0=0v$.
+    \end{proof}
+\end{proposition}
+
+\begin{proposition}
+    $-1\times v=-v$
+    \begin{proof}
+        $0=0v=(1-1)v=1v+(-1)v$, so by Proposition~\ref{inv}, $(-1)v=-v$.
+    \end{proof}
+\end{proposition}
+
+\begin{proposition}
+    $2v=v+v$
+    \begin{proof}
+        $2v=(1+1)v=1v+1v=v+v$
+    \end{proof}
+\end{proposition}
+
+It's important to note that the compatibility axioms are what give us these seemingly trivial results. Without them, we wouldn't get such intuitive properties as $2v=v+v$.
+
+\subsection{Examples of Vector Spaces}
+\begin{itemize}[itemsep=0.5em, topsep=0.5em]
+    \item $n$-tuples of a field $\F$, denoted $\F^n$, are a vector space $(\F^n,\F)$ with addition and scalar multiplication pointwise. That is,
+    \begin{gather}
+        \begin{pmatrix}
+            f_1 \\
+            f_2 \\
+            \vdots
+        \end{pmatrix}
+        +
+        \begin{pmatrix}
+            g_1 \\
+            g_2 \\
+            \vdots
+        \end{pmatrix}
+        :=
+        \begin{pmatrix}
+            f_1+g_1 \\
+            f_2+g_2 \\
+            \vdots
+        \end{pmatrix}
+        \\[.4em]
+        \lambda 
+        \begin{pmatrix}
+            f_1 \\
+            f_2 \\
+            \vdots
+        \end{pmatrix}
+        :=
+        \begin{pmatrix}
+            \lambda f_1 \\
+            \lambda f_2 \\
+            \vdots
+        \end{pmatrix}
+    \end{gather}
+    Specifically, a field is always vector space whose associated field is itself. We will discuss later that these spaces are \emph{finite-dimensional}.\\
+    \indent An example of something that is NOT a vector space are tuples in $\R$ whose entries are less than 5.
+    \item The space of $n\times m$ matrices, denoted $M_{n,m}(\F)$ form a vector space with addition and scalar multiplication pointwise as in the above bullet. NOTE: The \emph{vector space} of $n\times m$ matrices knows nothing about ``multiplication of matrices'' (indeed, we have talked about that yet).
+    \item Spaces of functions into a field $\F$ are often vector spaces of the field $\F$. For example, the spaces of bounded, differentiable, integrable, continuous, or arbitrary functions are all valid vector spaces. These spaces are \emph{infinite-dimensional}. These vector spaces will mostly be used for examples, and I won't ask you to do (many) computations with them.\\
+    \indent An example of a function space that is NOT a vector space is $S=\{f:\R\to [-1,\infty)\}$.
+    \item The space of infinite tuples of a field $\F$ is an infinite-dimensional vector space over $\F$ with pointwise operations.
+    \item $\C$ is a vector space over $\R$ but not the other way around.
+\end{itemize}
+
+\section{Subspaces}
+
+Let $(V,\F)$ be a vector space.
+
+\begin{definition}
+    A vector \emph{subspace} is exactly what it sounds like: a vector space inside another vector space. Precisely, a subset $W\subset V$ is a \emph{subspace} if $W$ satisfies the vector space axioms by itself with the addition and scalar multiplication inherited from $V$.
+\end{definition}
+
+\begin{example}\ \\
+\begin{itemize}
+    \item Tuples with zero in the second entry are a subspace of $\R^3$.
+    \begin{equation}
+        W=\{\begin{pmatrix}
+        x\\
+        0\\
+        y
+        \end{pmatrix}\in \R^3\}\subset V
+    \end{equation}
+    \item Tuples in $\C^2$ such that the the first entry is twice the second entry.
+    \begin{equation}
+        W=\{\begin{pmatrix}
+        2w\\
+        w\\
+        \end{pmatrix}\in \C^2\}\subset V
+    \end{equation}
+    \item In the space of functions of the form $f:[0,2]\to\R$, the subset $W=\{f:[0,2]\to\R\,|\,f(1)=0\}$ is a subspace.
+\end{itemize}
+\end{example}
+
+I can take any elements $\{v_1,v_2,\dots\}\subset V$, and the collection of all scalar multiples and sums of them MUST satisfy the vector space axioms. That is, for any $v_1,v_2,\dots\in V$, the subset $W=\{\lambda_1v_1+\lambda_2v_2+\cdots\in V\,|\,\lambda_1,\lambda_2,\dots\in\F\}$ form a vector subspace of $V$.
+
+\begin{definition}[Span]
+    Given a set of vectors $S=\{v_1,v_2,\dots\}\in V$, the \emph{span} of $S$ in $V$, denoted $\op{span}(S)\subset V$, is the vector subspace \emph{generated} by $S$, that is 
+    \begin{equation}
+        \op{span}\{v_1,v_2,\dots\}=\{\lambda_1v_1+\lambda_2v_2+\cdots\in V\,|\,\lambda_1,\lambda_2,\dots\in\F\}\subset V
+    \end{equation}
+\end{definition}
+
+\begin{exercise}\label{ex1}
+Compute the span
+\begin{equation}
+    \op{span}
+    \{
+    \begin{pmatrix}
+        1\\
+        1\\
+        3
+    \end{pmatrix}
+    ,
+    \begin{pmatrix}
+        1\\
+        0\\
+        3
+    \end{pmatrix}
+    ,
+    \begin{pmatrix}
+        -1\\
+        0\\
+        3
+    \end{pmatrix}
+    \}
+    \subset \R^3
+\end{equation}
+\end{exercise}
+
+\begin{exercise}[Hard]\label{ex1} Find a condition on an arbitrary vector $(x,y,z)\in \R^3$ such that it's in the span
+\begin{equation}
+    \op{span}
+    \{
+    \begin{pmatrix}
+        1\\
+        2\\
+        3
+    \end{pmatrix}
+    ,
+    \begin{pmatrix}
+        2\\
+        -1\\
+        4
+    \end{pmatrix}
+    ,
+    \begin{pmatrix}
+        3\\
+        1\\
+        7
+    \end{pmatrix}
+    \}
+    \subset \R^3
+\end{equation}
+\end{exercise}
+
+As you may see in Exercise~\ref{ex1}, many different sets of vectors can span the same vector space. In fact, the span of ALL vectors in a given a vector space is the vector space itself. We want a notion of the minimum number of vectors needed to span a given subset, or alternatively, we want know if given a collection, we can take a one vector without changing the span. Equivalently, we want to ask if given a set of vectors $v_1,v_2,\dots\in V$ for a vector space $V$, can we choose $\lambda_i$'s such that 
+\begin{equation}
+    \lambda_2v_2+\lambda_3v_3+\cdots=v_1
+\end{equation}
+obviously if this is true, then by subtracting/adding and dividing, any $v_i$ can be expressed as a sum of multiples of the other vectors or alternatively, by putting all the $v_i$'s on one side of the equal sign, the following definition is motivated.
+
+\begin{definition}
+    A collection of vectors $v_1,v_2,\dots\in V$ is said to be \emph{linearly independent} if 
+    \begin{equation}
+        \lambda_1v_1+\lambda_2v_2+\cdots=0\implies \lambda_1=\lambda_2=\cdots=0
+    \end{equation}
+\end{definition}
+
+\begin{exercise}
+    Show that the following vectors are linearly independent in $\R^2$.
+    \begin{equation}
+        \begin{pmatrix}
+            0\\
+            -3
+        \end{pmatrix}
+        ,
+        \begin{pmatrix}
+            2\\
+            1
+        \end{pmatrix}
+        \in\R^2
+    \end{equation}
+\end{exercise}
+
+\begin{proposition}
+    If a collection $S\subset V$ of vectors is linearly independent in $V$, any subset $S'\subset S$ is linearly independent in $V$.
+    \begin{proof}
+        
+    \end{proof}
+\end{proposition}
+
+\begin{proposition}
+    If a collection $S\subset V$ of vectors is linearly independent in $V$, the span of any subset $S'\subset S$ is strictly smaller than the span of $S$. Formally,
+    \begin{equation}
+        S'\subset S\implies \op{span}(S')\subsetneq \op{span}(S)
+    \end{equation}
+    \begin{proof}
+        
+    \end{proof}
+\end{proposition}
+
+\begin{definition}[Basis]
+    A minimal spanning set of vectors in $V$ is called a \emph{basis} in $V$. That is, for $S\subset V$, the set $S$ is a basis for $V$ if
+    \begin{itemize}
+        \item $S$ is linearly independent.
+        \item $\op{span}(S)=V$
+    \end{itemize}
+    Note that any set $X$ of linearly independent vectors is always a basis for the space $\op{span}(X)$.
+\end{definition}
+
+The following theorem is what makes bases important.
+
+\begin{theorem}
+    if $v_1,v_2,\dots$ is a basis for $V$, then any vector $w\in V$ can be expressed \emph{uniquely} as a sum
+    \begin{equation}
+        w=\lambda_1v_2+\lambda_2v_2+\cdots\qquad \lambda_1,\lambda_2,\dots\in \F
+    \end{equation}
+    That is, there is only one choice of $\lambda_1,\lambda_2,\dots$ such that this equality holds.
+    \begin{proof}
+        
+    \end{proof}
+\end{theorem}
+
+\begin{definition}[Dimension]
+    A vector space $V$ is called \emph{$n$-dimensional} if there exists a basis of size $n$ in $V$. That is, there exists $n$ linearly independent vectors who span $V$. In this case, $V$ is called \emph{finite-dimensional}.\\
+    \indent If there does not exists a finite collection of vectors which form a basis for $V$, $V$ is called \emph{infinite-dimensional}.
+\end{definition}
+
+\begin{example}
+    The vector space $\F^n$ admits a \emph{canonical basis} given by
+    \begin{equation}
+        \begin{pmatrix}
+            1\\
+            0\\
+            0\\
+            \vdots
+        \end{pmatrix}
+        ,
+        \begin{pmatrix}
+            0\\
+            1\\
+            0\\
+            \vdots
+        \end{pmatrix}
+        ,
+        \begin{pmatrix}
+            0\\
+            0\\
+            1\\
+            \vdots
+        \end{pmatrix}
+        ,\dots\in \F^n
+    \end{equation}
+\end{example}
+
+\begin{remark}[Square Integrable]
+You WILL NOT be tested on this, but for purpose of example, a function to the real (or complex) numbers is called \emph{square-integrable} if 
+    \begin{equation}
+    \int |f(x)|^2dx < \infty
+    \end{equation}
+    Square-integrable functions on a domain $X$ form a vector space denoted $L^2(X)$.
+\end{remark}
+
+\begin{example}
+Although spaces of functions are usually infinite-dimensional, they can admit (infinitely large) bases.
+    \begin{itemize}
+        \item The space of polynomials has a basis $\{1,x,x^2,\dots\}$.
+        \item The space of periodic square-integrable functions
+        \begin{equation}
+            V=\{f\in L^2([0,2\pi])\,|\,f(0)=f(2\pi)\}
+        \end{equation}
+        admit a basis $\{\sin(nx),\cos(nx)\,|\,n=0,1,2,\dots\}\subset V$. That is, any square-integrable $f:[0,2\pi]\to \C$ can be expressed uniquely as an infinite sum 
+        \begin{equation}
+            f(x)=\sum\limits_{n=0}^\infty \mu_n\sin(nx)+\sum\limits_{n=0}^\infty \lambda_n \cos(nx)
+        \end{equation}
+        This expansion is called a Fourier series!
+        \item The space of polynomials form a basis for square-integrable functions $L^2([-1,1])$. For example, $e^x$ can be expressed as
+        \begin{equation}
+            e^x=1+x+\frac{x^2}2+\frac{x^3}6+\cdots
+        \end{equation}
+    \end{itemize}
+What it means here for a function to be a sum of infinitely many nonzero functions is subtle and nontrivial. I will push this under the rug, since this example is only meant to be fun.
+\end{example}
+
+\begin{exercise}[Hard]
+    Show that the vector space of functions $f:\R \to \R$ is infinite-dimensional.
+\end{exercise} 
+
+\begin{exercise}
+    Show that the following is a basis for $M_{2,2}(\C)$.
+    \begin{equation}
+        \begin{pmatrix}
+            1 & 0\\
+            0 & 1
+        \end{pmatrix}
+        ,
+        \begin{pmatrix}
+            1 & 0\\
+            0 & -1
+        \end{pmatrix}
+        ,
+        \begin{pmatrix}
+            0 & 1\\
+            1 & 0
+        \end{pmatrix}
+        ,
+        \begin{pmatrix}
+            0 & -i\\
+            i & 0
+        \end{pmatrix}
+        \in M_{2,2}(\C)
+    \end{equation}
+    where $i=\sqrt{-1}$.
+\end{exercise}
+
+\begin{exercise}
+    Show that the set 
+    \begin{equation}
+        V=
+        \{\begin{pmatrix}
+            a & b\\
+            c & d
+        \end{pmatrix}
+        \,|\,a+d=0\}\subset M_{2,2}(\C)
+    \end{equation}
+    is a vector space, and show that it admits a basis
+    \begin{equation}
+        \begin{pmatrix}
+            1 & 0\\
+            0 & -1
+        \end{pmatrix}
+        ,
+        \begin{pmatrix}
+            0 & 1\\
+            1 & 0
+        \end{pmatrix}
+        ,
+        \begin{pmatrix}
+            0 & -i\\
+            i & 0
+        \end{pmatrix}
+        \in V
+    \end{equation}
+\end{exercise}
+
+\section{Linear Maps}
+
+\section{Appendix}
+\begin{comment}
+    \begin{definition}
+    A \emph{field} is a set $\F$ two operations given by the following axioms:\\[.1em]
+\begin{center}
+\fbox{\parbox[t]{7.7cm}{
+\raggedright
+\begin{center}\textbf{\underline{Addition}}\end{center}\\[.4em]
+$+:\F\times \F\to \F$ such that for all $x,y,z\in \F$,
+\begin{enumerate}[itemsep=0.5em, topsep=0.5em]
+\item (\emph{associativity}) $x+(y+z)=(x+y)+z$
+\item (\emph{commutativity}) $x+y=y+x$
+\item (\emph{identity}) There is an element $0\in \F$\\\noindent such that $x+0=x$
+\item (\emph{inverses}) There is an element $-x\in \F$ such that $x+(-x)=0$
+\end{enumerate}
+}}
+\quad
+\fbox{\parbox[t]{7.7cm}{
+\raggedright
+\begin{center}\textbf{\underline{Multiplication}}\end{center}\\[.4em]
+$\times:\F\times \F\to \F$ such that for all $x,y\in\F$,
+\begin{itemize}[label={}, itemsep=0.5em, topsep=0.5em]
+\item[(5)] (\emph{associativity}) $x\times(y\times z)=(x\times y)\times z$
+\item[(6)] (\emph{commutativity}) $x\times y=y\times x$
+\item[(7)] (\emph{identity}) There is an element $1\in \F$\\\noindent such that $x\times 1=1\times x=x$
+\item[(8)] (\emph{inverses}) For every $x\neq 0\in\F$, there is an element $x^{-1}\in \F$ such that $xx^{-1}=x^{-1}x=1$
+\end{itemize}
+}}
+\end{center}
+The $\times$ symbol is usually made implicit, and expression $x+(-x)$ are written like $x-x$. Also, $x^{-1}$ may be written $1/x=\frac1{x}$.
+\begin{center}
+\fbox{\parbox{5cm}{
+\raggedright
+\begin{center}\textbf{\underline{Compatibility}}\end{center}\\[.4em]
+    For all $x,y,z\in\F$
+\begin{itemize}[label={}]
+\item[(9)] $x(y+z)=xy+xz$
+\end{itemize}
+    }}
+\end{center}
+\end{definition}
+\end{comment}
+
+\end{document}
